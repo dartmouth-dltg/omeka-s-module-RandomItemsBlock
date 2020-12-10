@@ -1,0 +1,13 @@
+<?php $items = $this->randomItems($block->dataValue('count', 3)); ?>
+<div class="item-showcase">
+    <?php foreach ($items as $item): ?>
+        <div class="item resource">
+            <?php $media = $item->primaryMedia(); ?>
+            <?php if ($media): ?>
+                <?php echo $item->linkRaw($this->thumbnail($media, 'large')); ?>
+            <?php endif; ?>
+
+            <h3><?php echo $item->link($item->displayTitle()); ?></h3>
+        </div>
+    <?php endforeach; ?>
+</div>
