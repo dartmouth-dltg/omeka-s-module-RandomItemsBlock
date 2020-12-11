@@ -28,24 +28,12 @@ class RandomItems extends AbstractHelper
         $em = $this->entityManager;
 
         $conn = $em->getConnection();
-        $stmt = $conn->prepare('SELECT MAX(id) maxItemId FROM item');
-        $stmt->execute();
-        $result = $stmt->fetch();
-        $maxItemId = $result['maxItemId'];
 
         # Limit to public items so we don't have to check for user permissions
-        $stmt = $conn->prepare('SELECT id FROM resource WHERE resource_type = :resourceType AND is_public = 1 AND id > :minItemId');
-
-        $itemIds = [];
-        while (count($itemIds) < $count) {
-            $minItemId = mt_rand(0, $maxItemId - 1);
-            $stmt->execute(['resourceType' => 'Omeka\\Entity\\Item', 'minItemId' => $minItemId]);
-            $result = $stmt->fetch();
-            $itemId = $result['id'];
-            if (!in_array($itemId, $itemIds, true)) {
-                $itemIds[] = $itemId;
-            }
-        }
+        $stmt = $conn->prepare("SELECT id FROM resource WHERE resource_type = :resourceType AND is_public = 1 ORDER BY RAND() LIMIT $count");
+        $stmt->execute(['resourceType' => 'Omeka\\Entity\\Item']);
+        $result = $stmt->fetchAll();
+        $itemIds = array_column($result, 'id');
 
         $itemAdapter = $this->apiAdapterManager->get('items');
 
