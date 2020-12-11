@@ -2,6 +2,7 @@
 namespace RandomItemsBlock\View\Helper;
 
 use Doctrine\ORM\EntityManager;
+use Omeka\Api\Adapter\Manager as ApiAdapterManager;
 use Zend\View\Helper\AbstractHelper;
 
 class RandomItems extends AbstractHelper
@@ -11,24 +12,42 @@ class RandomItems extends AbstractHelper
      */
     protected $entityManager;
 
-    public function __construct(EntityManager $entityManager)
+    /**
+     * @var ApiAdapterManager
+     */
+    protected $apiAdapterManager;
+
+    public function __construct(EntityManager $entityManager, ApiAdapterManager $apiAdapterManager)
     {
         $this->entityManager = $entityManager;
+        $this->apiAdapterManager =  $apiAdapterManager;
     }
 
     public function __invoke(int $count)
     {
         $em = $this->entityManager;
-        $api = $this->getView()->api();
 
-        $query = $em->createQuery("SELECT r.id FROM Omeka\Entity\Item r ORDER BY RAND()");
-        $query->setMaxResults($count);
+        $result = $em->createQuery('SELECT COUNT(i) totalCount FROM Omeka\Entity\Item i')->getSingleResult();
+        $totalCount = $result['totalCount'];
+
+        $randomOffsets = [];
+        while (count($randomOffsets) < $count) {
+            $randomOffset = mt_rand(0, $totalCount - 1);
+            if (!in_array($randomOffset, $randomOffsets, true)) {
+                $randomOffsets[] = $randomOffset;
+            }
+        }
+
+        $itemAdapter = $this->apiAdapterManager->get('items');
 
         $items = [];
-        foreach ($query->getResult() as $result) {
-            $item = $api->read('items', $result['id'])->getContent();
+        foreach ($randomOffsets as $randomOffset) {
+            $query = $em->createQuery("SELECT i FROM Omeka\Entity\Item i ORDER BY i.id ASC");
+            $query->setFirstResult($randomOffset);
+            $query->setMaxResults(1);
+            $item = $query->getSingleResult();
             if ($item) {
-                $items[] = $item;
+                $items[] = $itemAdapter->getRepresentation($item);
             }
         }
 
