@@ -27,7 +27,10 @@ class RandomItems extends AbstractHelper
     {
         $em = $this->entityManager;
 
-        $result = $em->createQuery('SELECT COUNT(i) totalCount FROM Omeka\Entity\Item i')->getSingleResult();
+        $conn = $em->getConnection();
+        $stmt = $conn->prepare('SELECT COUNT(id) totalCount FROM item');
+        $stmt->execute();
+        $result = $stmt->fetch();
         $totalCount = $result['totalCount'];
 
         $randomOffsets = [];
