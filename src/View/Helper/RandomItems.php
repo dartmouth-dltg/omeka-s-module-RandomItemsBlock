@@ -28,30 +28,32 @@ class RandomItems extends AbstractHelper
         $em = $this->entityManager;
 
         $conn = $em->getConnection();
-        $stmt = $conn->prepare('SELECT COUNT(id) totalCount FROM item');
+        $stmt = $conn->prepare('SELECT MAX(id) maxItemId FROM item');
         $stmt->execute();
         $result = $stmt->fetch();
-        $totalCount = $result['totalCount'];
+        $maxItemId = $result['maxItemId'];
 
-        $randomOffsets = [];
-        while (count($randomOffsets) < $count) {
-            $randomOffset = mt_rand(0, $totalCount - 1);
-            if (!in_array($randomOffset, $randomOffsets, true)) {
-                $randomOffsets[] = $randomOffset;
+        # Limit to public items so we don't have to check for user permissions
+        $stmt = $conn->prepare('SELECT id FROM resource WHERE resource_type = :resourceType AND is_public = 1 AND id > :minItemId');
+
+        $itemIds = [];
+        while (count($itemIds) < $count) {
+            $minItemId = mt_rand(0, $maxItemId - 1);
+            $stmt->execute(['resourceType' => 'Omeka\\Entity\\Item', 'minItemId' => $minItemId]);
+            $result = $stmt->fetch();
+            $itemId = $result['id'];
+            if (!in_array($itemId, $itemIds, true)) {
+                $itemIds[] = $itemId;
             }
         }
 
         $itemAdapter = $this->apiAdapterManager->get('items');
 
         $items = [];
-        foreach ($randomOffsets as $randomOffset) {
-            $query = $em->createQuery("SELECT i FROM Omeka\Entity\Item i ORDER BY i.id ASC");
-            $query->setFirstResult($randomOffset);
-            $query->setMaxResults(1);
-            $item = $query->getSingleResult();
-            if ($item) {
-                $items[] = $itemAdapter->getRepresentation($item);
-            }
+        $query = $em->createQuery("SELECT i FROM Omeka\Entity\Item i WHERE i.id IN (:itemIds)");
+        $query->setParameter('itemIds', $itemIds);
+        foreach ($query->getResult() as $item) {
+            $items[] = $itemAdapter->getRepresentation($item);
         }
 
         return $items;
