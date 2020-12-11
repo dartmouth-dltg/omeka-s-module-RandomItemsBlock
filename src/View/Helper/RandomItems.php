@@ -36,8 +36,8 @@ class RandomItems extends AbstractHelper
         $sql = 'SELECT id FROM resource';
         $sql .= ' WHERE resource_type = :resourceType';
 
-        # Limit to public items so we don't have to check for user permissions
-        # (anyone can see public items even anonymous users)
+        // Limit to public items so we don't have to check for user permissions
+        // (anyone can see public items even anonymous users)
         $sql .= ' AND is_public = 1';
 
         $sql .= ' ORDER BY RAND()';
