@@ -4,7 +4,7 @@ namespace RandomItemsBlock\Service\ViewHelper;
 
 use Interop\Container\ContainerInterface;
 use RandomItemsBlock\View\Helper\RandomItems;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class RandomItemsFactory implements FactoryInterface
 {

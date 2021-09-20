@@ -4,7 +4,7 @@ namespace RandomItemsBlock\View\Helper;
 use Doctrine\ORM\EntityManager;
 use Omeka\Api\Adapter\Manager as ApiAdapterManager;
 use Omeka\Entity\Item;
-use Zend\View\Helper\AbstractHelper;
+use Laminas\View\Helper\AbstractHelper;
 
 class RandomItems extends AbstractHelper
 {
