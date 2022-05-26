@@ -27,13 +27,13 @@ class RandomItems extends AbstractHelper
     /**
      * @return \Omeka\Api\Representation\ItemRepresentation[]
      */
-    public function __invoke(int $count): array
+    public function __invoke(int $count, int $res_template_id = null): array
     {
         $em = $this->entityManager;
 
         $itemAdapter = $this->apiAdapterManager->get('items');
 
-        $items = $em->getRepository(Item::class)->findBy(['id' => $this->getRandomItemIds($count)]);
+        $items = $em->getRepository(Item::class)->findBy(['id' => $this->getRandomItemIds($count, $res_template_id)]);
         $itemRepresentations = [];
         foreach ($items as $item) {
             $itemRepresentations[] = $itemAdapter->getRepresentation($item);
@@ -42,7 +42,7 @@ class RandomItems extends AbstractHelper
         return $itemRepresentations;
     }
 
-    protected function getRandomItemIds($count, $useCache = true)
+    protected function getRandomItemIds($count, $res_template_id, $useCache = true)
     {
         $cacheKey = "omeka:RandomItems:randomItemIds:$count";
         $itemIds = $useCache ? $this->getFromCache($cacheKey) : false;
@@ -53,6 +53,10 @@ class RandomItems extends AbstractHelper
             $sql = 'SELECT id FROM resource';
             $sql .= ' WHERE resource_type = :resourceType';
 
+            if (isset($res_template_id)) {
+              $sql .= ' AND resource_template_id = :resourceTemplateId';
+            }
+
             // Limit to public items so we don't have to check for user permissions
             // (anyone can see public items even anonymous users)
             $sql .= ' AND is_public = 1';
@@ -61,7 +65,13 @@ class RandomItems extends AbstractHelper
             $sql .= " LIMIT $count";
 
             $stmt = $conn->prepare($sql);
-            $stmt->execute(['resourceType' => Item::class]);
+
+            if (isset($res_template_id)) {
+              $stmt->execute(['resourceType' => Item::class, 'resourceTemplateId' => $res_template_id]);
+            }
+            else {
+              $stmt->execute(['resourceType' => Item::class]);
+            }
             $result = $stmt->fetchAll();
             $itemIds = array_column($result, 'id');
 

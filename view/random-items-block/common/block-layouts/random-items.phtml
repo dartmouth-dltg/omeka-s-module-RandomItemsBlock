@@ -1,4 +1,4 @@
-<?php $items = $this->randomItems($block->dataValue('count', 3)); ?>
+<?php $items = $this->randomItems($block->dataValue('count', 3), $block->dataValue('show_res_template_select_option', null)); ?>
 <div class="item-showcase">
     <?php foreach ($items as $item): ?>
         <div class="item resource">
