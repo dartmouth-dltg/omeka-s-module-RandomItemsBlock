@@ -6,8 +6,10 @@ use Omeka\Api\Representation\SiteRepresentation;
 use Omeka\Api\Representation\SitePageBlockRepresentation;
 use Omeka\Api\Representation\SitePageRepresentation;
 use Omeka\Site\BlockLayout\AbstractBlockLayout;
+use Laminas\Form\Element\Checkbox;
 use Laminas\Form\Element\Number;
 use Laminas\Form\Element\Select;
+use Laminas\Form\Element\Text;
 use Laminas\View\Renderer\PhpRenderer;
 
 class RandomItems extends AbstractBlockLayout
@@ -54,9 +56,19 @@ class RandomItems extends AbstractBlockLayout
 
         $resTemplateSelect->setValue($block ? $block->dataValue('show_res_template_select_option', '0') : '0');
 
+        $userRandom = new Checkbox('o:block[__blockIndex__][o:data][userRandom]');
+        $userRandom->setLabel('Check to allow users to see additional random items');
+        $userRandom->setValue($block ? $block->dataValue('userRandom', false) : false);
+
+        $userRandomLabel = new Text('o:block[__blockIndex__][o:data][userRandomLabel]');
+        $userRandomLabel->setLabel('If the above is checked, set a label for the button that users click to see a new random item');
+        $userRandomLabel->setValue($block && $block->dataValue('userRandomLabel') != '' ? $block->dataValue('userRandomLabel', 'View Another Item') : 'View Another item');
+
         $formReturn = $view->formRow($resTemplateSelect);
         $formReturn .= $view->formRow($count);
         $formReturn .= $view->formRow($totalItems);
+        $formReturn .= $view->formRow($userRandom);
+        $formReturn .= $view->formRow($userRandomLabel);
         return $formReturn;
     }
 

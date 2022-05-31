@@ -5,7 +5,9 @@
       $basePath = $view->basePath();
 ?>
 <div class="item-showcase">
-        <button class="random-items-block-switch">View Another</button>
+        <?php if ($block->dataValue('userRandom') == 1): ?>
+          <button class="random-items-block-switch"><?php echo $block->dataValue('userRandomLabel', 'View Another Item') ?></button>
+        <?php endif; ?>
         <div class="item resource random-item">
             <?php $media = $initialItem->primaryMedia(); ?>
             <?php if ($media): ?>
