@@ -1,13 +1,20 @@
-<?php $items = $this->randomItems($block->dataValue('count', 3), $block->dataValue('show_res_template_select_option', null)); ?>
+<?php $items = $this->randomItems($block->dataValue('count', 3), $block->dataValue('totalItems', 1000), $block->dataValue('show_res_template_select_option', null)); ?>
+<?php $itemIds = $items[0];
+      $initialItem = $items[1];
+      $randomIdx = $items[2];
+      $basePath = $view->basePath();
+?>
 <div class="item-showcase">
-    <?php foreach ($items as $item): ?>
-        <div class="item resource">
-            <?php $media = $item->primaryMedia(); ?>
+        <button class="random-items-block-switch">View Another</button>
+        <div class="item resource random-item">
+            <?php $media = $initialItem->primaryMedia(); ?>
             <?php if ($media): ?>
-                <?php echo $item->linkRaw($this->thumbnail($media, 'large')); ?>
+                <?php echo $this->thumbnail($media, 'large'); ?>
             <?php endif; ?>
-
-            <h3><?php echo $item->link($item->displayTitle()); ?></h3>
+            <h3><?php echo $initialItem->displayTitle(); ?></h3>
+            <p><?php echo $initialItem->displayDescription(); ?></p>
         </div>
-    <?php endforeach; ?>
+      <script>
+        var randomItemsBlock = new RandomItemsBlock(<?php echo(json_encode($itemIds) . ',' . json_encode($randomIdx) . ',' . json_encode($basePath)); ?>);
+      </script>
 </div>
