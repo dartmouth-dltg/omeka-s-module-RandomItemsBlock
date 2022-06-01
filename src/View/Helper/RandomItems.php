@@ -35,9 +35,15 @@ class RandomItems extends AbstractHelper
 
         $itemIds = $this->getRandomItemIds($totalItems, $res_template_id);
         $randItemsIdx = rand(0, count($itemIds) - 1);
-        $initialItem = $itemAdapter->getRepresentation($em->getRepository(Item::class)->findBy(['id' => $itemIds[$randItemsIdx]])[0]);
+        $itemRepresentations = [];
+        $idxs = [];
+        for ($i = 0; $i < $count; $i++) {
+          array_push($idxs, $randItemsIdx);
+          $itemRepresentations[] = $itemAdapter->getRepresentation($em->getRepository(Item::class)->findBy(['id' => $itemIds[$randItemsIdx]])[0]);
+          $randItemsIdx = ($randItemsIdx + 1) % (count($itemIds) - 1);
+        }
 
-        return array($itemIds, $initialItem, $randItemsIdx);
+        return array($itemIds, $itemRepresentations, $idxs[$count - 1]);
     }
 
     protected function getRandomItemIds($totalItems, $res_template_id, $useCache = true)

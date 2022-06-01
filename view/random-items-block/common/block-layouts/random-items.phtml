@@ -1,22 +1,36 @@
 <?php $items = $this->randomItems($block->dataValue('count', 3), $block->dataValue('totalItems', 1000), $block->dataValue('show_res_template_select_option', null)); ?>
 <?php $itemIds = $items[0];
-      $initialItem = $items[1];
+      $initialItems = $items[1];
       $randomIdx = $items[2];
       $basePath = $view->basePath();
+      $siteSlug = $block->page()->site()->slug();
+      $linkItems = $block->dataValue('linkItems', false);
 ?>
 <div class="item-showcase">
-        <?php if ($block->dataValue('userRandom') == 1): ?>
-          <button class="random-items-block-switch"><?php echo $block->dataValue('userRandomLabel', 'View Another Item') ?></button>
-        <?php endif; ?>
-        <div class="item resource random-item">
-            <?php $media = $initialItem->primaryMedia(); ?>
-            <?php if ($media): ?>
-                <?php echo $this->thumbnail($media, 'large'); ?>
+      <?php if ($block->dataValue('userRandom') == 1): ?>
+        <button class="random-items-block-switch"><?php echo $block->dataValue('userRandomLabel', 'View Another Item') ?></button>
+      <?php endif; ?>
+      <div class="item resource random-item">
+        <?php foreach ($initialItems as $initialItem): ?>
+          <?php $media = $initialItem->primaryMedia(); ?>
+          <?php if ($media): ?>
+            <?php if ($linkItems): ?>
+              <?php echo $initialItem->linkRaw($this->thumbnail($media, 'large')); ?>
+            <?php else: ?>
+              <?php echo $this->thumbnail($media, 'large'); ?>
             <?php endif; ?>
+          <?php endif; ?>
+          <?php if ($linkItems): ?>
+            <h3><?php echo $initialItem->link($initialItem->displayTitle()); ?></h3>
+          <?php else: ?>
             <h3><?php echo $initialItem->displayTitle(); ?></h3>
-            <p><?php echo $initialItem->displayDescription(); ?></p>
-        </div>
+          <?php endif; ?>
+          <p><?php echo $initialItem->displayDescription(); ?></p>
+        <?php endforeach; ?>
+      </div>
+    <?php if ($block->dataValue('userRandom') == 1): ?>
       <script>
-        var randomItemsBlock = new RandomItemsBlock(<?php echo(json_encode($itemIds) . ',' . json_encode($randomIdx) . ',' . json_encode($basePath)); ?>);
+        var randomItemsBlock = new RandomItemsBlock(<?php echo(json_encode($itemIds) . ',' . json_encode($randomIdx) . ',' . json_encode($block->dataValue('count', 3)) . ',' . json_encode($basePath) . ',' . json_encode($siteSlug)  . ',' . json_encode($linkItems)); ?>);
       </script>
+    <?php endif; ?>
 </div>
