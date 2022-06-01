@@ -39,8 +39,9 @@ class RandomItemsBlock {
     const itemImageUrl = typeof(data['thumbnail_display_urls']['large']) != 'undefined' ? data['thumbnail_display_urls']['large'] : null;
     const itemTitle = typeof(data['o:title']) != 'undefined' ? data['o:title'] : null;
     const itemDescription = typeof(data['dcterms:description']) != 'undefined' ? data['dcterms:description'][0]['@value'] : null;
-    if (itemImageUrl != null && itemTitle != null && itemDescription != null) {
-      this.renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, targetEl);
+    const mediaUrl = typeof (data['o:media']) != 'undefined' ? data['o:media'][0]['@id'] : null;
+    if (itemImageUrl != null && itemTitle != null && itemDescription != null && mediaUrl != null) {
+      this.renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, mediaUrl, targetEl);
     }
     else {
       this.randIdx = (this.randIdx + 1) % this.itemIds.length;
@@ -48,18 +49,24 @@ class RandomItemsBlock {
     }
   }
 
-  renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, targetEl) {
+  renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, mediaUrl, targetEl) {
     let html = '';
-    if (this.linkToItems == 1) {
-      html += '<a href="' + this.itemPath + itemId + '"><img src="' + itemImageUrl + '"></a>';
-      html += '<h3><a href="' + this.itemPath + itemId + '">' + itemTitle + '</a></h3>';
-    }
-    else {
-      html += '<img src="' + itemImageUrl + '">';
-      html += '<h3>' + itemTitle + '</h3>';
-    }
-    html += '<p>' + itemDescription + '</p>';
-    targetEl.append(html);
+    let altText = '';
+
+    $.get(mediaUrl, function(data) {
+      altText = typeof(data['o:alt_text']) != 'undefined' && data['o:alt_text'] != null ? data['o:alt_text'] : '';
+    }).always(function(){
+      if (this.linkToItems == 1) {
+        html += '<a href="' + this.itemPath + itemId + '"><img src="' + itemImageUrl + '" alt="' + altText + '"></a>';
+        html += '<h3><a href="' + this.itemPath + itemId + '">' + itemTitle + '</a></h3>';
+      }
+      else {
+        html += '<img src="' + itemImageUrl + '" alt="' + altText + '">';
+        html += '<h3>' + itemTitle + '</h3>';
+      }
+      html += '<p>' + itemDescription + '</p>';
+      targetEl.append(html);
+    });
   }
 }
 
