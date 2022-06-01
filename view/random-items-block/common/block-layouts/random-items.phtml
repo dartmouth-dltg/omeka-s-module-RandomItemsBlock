@@ -5,11 +5,12 @@
       $basePath = $view->basePath();
       $siteSlug = $block->page()->site()->slug();
       $linkItems = $block->dataValue('linkItems', false);
+      $blockUuid = uniqid();
 ?>
-<div class="item-showcase">
-      <?php if ($block->dataValue('userRandom') == 1): ?>
-        <button class="random-items-block-switch"><?php echo $block->dataValue('userRandomLabel', 'View Another Item') ?></button>
-      <?php endif; ?>
+<?php if ($block->dataValue('userRandom') == 1): ?>
+  <button data-random-block-target="<?php echo $blockUuid ?>" class="random-items-block-switch"><?php echo $block->dataValue('userRandomLabel', 'View Another Item') ?></button>
+<?php endif; ?>
+<div class="item-showcase" id="<?php echo $blockUuid ?>">
       <div class="item resource random-item">
         <?php foreach ($initialItems as $initialItem): ?>
           <?php $media = $initialItem->primaryMedia(); ?>
@@ -28,9 +29,9 @@
           <p><?php echo $initialItem->displayDescription(); ?></p>
         <?php endforeach; ?>
       </div>
-    <?php if ($block->dataValue('userRandom') == 1): ?>
-      <script>
-        var randomItemsBlock = new RandomItemsBlock(<?php echo(json_encode($itemIds) . ',' . json_encode($randomIdx) . ',' . json_encode($block->dataValue('count', 3)) . ',' . json_encode($basePath) . ',' . json_encode($siteSlug)  . ',' . json_encode($linkItems)); ?>);
-      </script>
-    <?php endif; ?>
 </div>
+<?php if ($block->dataValue('userRandom') == 1): ?>
+  <script>
+    var randomItemsBlock = new RandomItemsBlock(<?php echo(json_encode($itemIds) . ',' . json_encode($randomIdx) . ',' . json_encode($block->dataValue('count', 3)) . ',' . json_encode($basePath) . ',' . json_encode($siteSlug)  . ',' . json_encode($linkItems) . ',' . json_encode($blockUuid)); ?>);
+  </script>
+<?php endif; ?>

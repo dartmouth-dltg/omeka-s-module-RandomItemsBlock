@@ -74,7 +74,9 @@ class RandomItemsBlock {
     $(document).ready(function() {
       $('.random-items-block-switch').click(function(e) {
         e.preventDefault();
-        randomItemsBlock.getNewRandomItems($(this).siblings('.random-item'));
+        const targetId = $(this).data('random-block-target');
+        const targetEl = $('#' + targetId).children('.random-item');
+        randomItemsBlock.getNewRandomItems(targetEl);
       })
     });
 })(jQuery);
