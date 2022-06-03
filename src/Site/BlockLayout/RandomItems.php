@@ -64,6 +64,10 @@ class RandomItems extends AbstractBlockLayout
         $userRandomLabel->setLabel('If the above is checked, set a label for the button that users click to see a new random item');
         $userRandomLabel->setValue($block && $block->dataValue('userRandomLabel') != '' ? $block->dataValue('userRandomLabel', 'View Another Item') : 'View Another item');
 
+        $userRandomPlacement = new Checkbox('o:block[__blockIndex__][o:data][userRandomPlacement]');
+        $userRandomPlacement->setLabel('If users are allowed to see additional random items AND the number of items to display is just one, then check to place the random button below the description.');
+        $userRandomPlacement->setValue($block ? $block->dataValue('userRandomPlacement', false) : false);
+
         $linkItems = new Checkbox('o:block[__blockIndex__][o:data][linkItems]');
         $linkItems->setLabel('Check to link random items to their display pages');
         $linkItems->setValue($block ? $block->dataValue('linkItems', false) : false);
@@ -73,6 +77,7 @@ class RandomItems extends AbstractBlockLayout
         $formReturn .= $view->formRow($totalItems);
         $formReturn .= $view->formRow($userRandom);
         $formReturn .= $view->formRow($userRandomLabel);
+        $formReturn .= $view->formRow($userRandomPlacement);
         $formReturn .= $view->formRow($linkItems);
 
         return $formReturn;
