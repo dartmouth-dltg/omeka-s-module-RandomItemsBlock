@@ -16,26 +16,36 @@
   <?php endif; ?>
 <?php endif; ?>
 <div class="item-showcase" id="<?php echo $blockUuid ?>">
-      <div class="item resource">
+      <div class="item resource" aria-live="polite">
         <?php foreach ($initialItems as $initialItem): ?>
           <div class="random-item">
+            <?php if ($linkItems): ?>
+              <h3><?php echo $initialItem->link($initialItem->displayTitle()); ?></h3>
+            <?php else: ?>
+              <h3><?php echo $initialItem->displayTitle(); ?></h3>
+            <?php endif; ?>
             <div class="random-item-image">
-              <?php $media = $initialItem->primaryMedia(); ?>
-              <?php if ($media): ?>
+              <?php $imageMedia = $initialItem->primaryMedia(); ?>
+              <?php if ($imageMedia): ?>
                 <?php if ($linkItems): ?>
-                  <?php echo $initialItem->linkRaw($this->thumbnail($media, 'large')); ?>
+                  <?php echo $initialItem->linkRaw($this->thumbnail($imageMedia, 'large')); ?>
                 <?php else: ?>
-                  <?php echo $this->thumbnail($media, 'large'); ?>
+                  <?php echo $this->thumbnail($imageMedia, 'large'); ?>
                 <?php endif; ?>
               <?php endif; ?>
             </div>
             <div class="random-item-description">
-              <?php if ($linkItems): ?>
-                <h3><?php echo $initialItem->link($initialItem->displayTitle()); ?></h3>
-              <?php else: ?>
-                <h3><?php echo $initialItem->displayTitle(); ?></h3>
-              <?php endif; ?>
-              <p><?php echo $initialItem->displayDescription(); ?></p>
+                <?php $description = ''; ?>
+                <?php foreach ($initialItem->media() as $media): ?>
+                  <?php $thismediatype = $media->value('dcterms:type'); ?>
+                  <?php if ($thismediatype == 'storybooth'): ?>
+                    <?php $description = $media->render(); ?>
+                    <?php break; ?>
+                  <?php else: ?>
+                    <?php $description = '<p>' . $initialItem->displayDescription() . '</p>'; ?>
+                  <?php endif; ?>
+                <?php endforeach; ?>
+                <?php echo $description; ?>
               <?php if ($block->dataValue('userRandom') == 1): ?>
                 <?php if (count($initialItems) == 1 && $block->dataValue('userRandomPlacement') == 1) : ?>
                   <?php $btnPlacement = 1; ?>

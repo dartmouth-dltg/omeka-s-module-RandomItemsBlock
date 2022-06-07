@@ -2,7 +2,7 @@
 
 class RandomItemsBlock {
 
-  constructor(itemIds, randIdx, totalImages, basePath, siteSlug, linkToItems = false, blockUuid, btnPlacement) {
+  constructor(itemIds, randIdx, totalImages, basePath, siteSlug, linkToItems = false, blockUuid, btnPlacement, imageMediaIds, descriptionMediaIds) {
     this.API_PATH = "api/items";
     this.itemIds = itemIds;
     this.randIdx = randIdx;
@@ -12,14 +12,23 @@ class RandomItemsBlock {
     this.linkToItems = linkToItems;
     this.btnPlacement = btnPlacement;
     this.itemPath = this.basePath + "/s/" + this.siteSlug + "/item/";
+    this.media_api_path = this.basePath + '/api/media/';
+    this.imageMediaIds = imageMediaIds;
+    this.descriptionMediaIds = descriptionMediaIds;
+    this.spinner = '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
+    this.spinnerClass = '.lds-ellipsis';
   }
 
   getNewRandomItems(el, btn) {
-    el.html('');
-    for (let i = 1; i <= this.totalImages; i++) {
-      this.randIdx = (this.randIdx + i) % this.itemIds.length;
-      this.getRandomItem(el, btn)
-    }
+    const self = this
+    el.html(this.spinner);
+    setTimeout(function(){
+      for (let i = 1; i <= self.totalImages; i++) {
+        self.randIdx = (self.randIdx + i) % self.itemIds.length;
+        self.getRandomItem(el, btn)
+      }
+    }, 400, el, btn);
+
   }
 
   getRandomItem(el, btn) {
@@ -30,6 +39,7 @@ class RandomItemsBlock {
       btnEl: btn,
       success: function(data) {
           self.parseApiData(data, this.targetEl, this.btnEl);
+          $(self.spinnerClass).remove()
         }
       }
     );
@@ -41,9 +51,11 @@ class RandomItemsBlock {
     const itemImageUrl = typeof(data['thumbnail_display_urls']['large']) != 'undefined' ? data['thumbnail_display_urls']['large'] : null;
     const itemTitle = typeof(data['o:title']) != 'undefined' ? data['o:title'] : null;
     const itemDescription = typeof(data['dcterms:description']) != 'undefined' ? data['dcterms:description'][0]['@value'] : null;
-    const mediaUrl = typeof (data['o:media']) != 'undefined' ? data['o:media'][0]['@id'] : null;
-    if (itemImageUrl != null && itemTitle != null && itemDescription != null && mediaUrl != null) {
-      this.renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, mediaUrl, targetEl, btnEl);
+    const imageMediaUrl = typeof(data['o:media']) != 'undefined' ? data['o:media'][0]['@id'] : null
+    const descriptionMediaUrl = typeof(data['o:media']) != 'undefined' && typeof(data['o:media'][1]) != 'undefined' ? data['o:media'][1]['@id'] : null
+
+    if (itemImageUrl != null && itemTitle != null && itemDescription != null) {
+      this.renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, imageMediaUrl, descriptionMediaUrl, targetEl, btnEl);
     }
     else {
       this.randIdx = (this.randIdx + 1) % this.itemIds.length;
@@ -51,38 +63,70 @@ class RandomItemsBlock {
     }
   }
 
-  renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, mediaUrl, targetEl, btnEl) {
+  renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, imageMediaUrl, descriptionMediaUrl, targetEl, btnEl) {
     const self = this;
-    let html = '';
     let altText = '';
+    let descriptionHtml = null;
 
-    $.get(mediaUrl, function(data) {
-      altText = typeof(data['o:alt_text']) != 'undefined' && data['o:alt_text'] != null ? data['o:alt_text'] : '';
-    }).always(function(){
-      html += '<div class="random-item">';
-      if (this.linkToItems == 1) {
-        html += '<div class="random-item-image">';
-        html += '<a href="' + this.itemPath + itemId + '"><img src="' + itemImageUrl + '" alt="' + altText + '"></a>';
-        html += '</div>';
-        html += '<div class="random-item-description">';
-        html += '<h3><a href="' + this.itemPath + itemId + '">' + itemTitle + '</a></h3>';
-      }
-      else {
-        html += '<div class="random-item-image">';
-        html += '<img src="' + itemImageUrl + '" alt="' + altText + '">';
-        html += '</div>';
-        html += '<div class="random-item-description">';
-        html += '<h3>' + itemTitle + '</h3>';
-      }
+    if (descriptionMediaUrl != null) {
+      $.when(
+        $.get(imageMediaUrl, function(data) {
+          altText = typeof(data['o:alt_text']) != 'undefined' && data['o:alt_text'] != null ? data['o:alt_text'] : '';
+        }),
+        $.get(descriptionMediaUrl, function(data) {
+          descriptionHtml = typeof(data['data']) != 'undefined' && data['data']['html'] != '' ? data['data']['html'] : null;
+        })
+      )
+      .done(function() {
+        self.assembleHtml(itemId, itemImageUrl, itemTitle, itemDescription, altText, descriptionHtml, targetEl, btnEl);
+      })
+    }
+    else {
+      $.when(
+        $.get(this.imageMediaUrl, function(data) {
+          altText = typeof(data['o:alt_text']) != 'undefined' && data['o:alt_text'] != null ? data['o:alt_text'] : '';
+        })
+      )
+      .done(function() {
+        self.assembleHtml(itemId, itemImageUrl, itemTitle, itemDescription, altText, descriptionHtml, targetEl, btnEl);
+      })
+    }
+  }
+
+  assembleHtml(itemId, itemImageUrl, itemTitle, itemDescription, altText, descriptionHtml, targetEl, btnEl) {
+    const self = this;
+    let html = '<div class="random-item">';
+
+    if (this.linkToItems == 1) {
+      html += '<h3><a href="' + this.itemPath + itemId + '">' + itemTitle + '</a></h3>';
+      html += '<div class="random-item-image">';
+      html += '<a href="' + this.itemPath + itemId + '"><img src="' + itemImageUrl + '" alt="' + altText + '"></a>';
+      html += '</div>';
+      html += '<div class="random-item-description">';
+    }
+    else {
+      html += '<h3>' + itemTitle + '</h3>';
+      html += '<div class="random-item-image">';
+      html += '<img src="' + itemImageUrl + '" alt="' + altText + '">';
+      html += '</div>';
+      html += '<div class="random-item-description">';
+    }
+
+    if (descriptionHtml != null) {
+      html += descriptionHtml;
+    }
+    else {
       html += '<p>' + itemDescription + '</p>';
-      if (self.btnPlacement == 1) {
-        console.log(btnEl)
-        html += btnEl.outerHTML;
-      }
-      html += '</div>';
-      html += '</div>';
-      targetEl.append(html);
-    });
+    }
+
+    if (self.btnPlacement == 1) {
+      html += btnEl.outerHTML;
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    targetEl.append(html);
   }
 }
 
