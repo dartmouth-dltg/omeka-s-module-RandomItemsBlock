@@ -53,7 +53,7 @@ class RandomItemsBlock {
     const imageMediaUrl = typeof(data['o:media']) != 'undefined' ? data['o:media'][0]['@id'] : null
     const descriptionMediaUrl = typeof(data['o:media']) != 'undefined' && typeof(data['o:media'][1]) != 'undefined' ? data['o:media'][1]['@id'] : null
 
-    if (itemImageUrl != null && itemTitle != null && itemDescription != null) {
+    if (itemImageUrl != null && itemTitle != null) {
       this.renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, imageMediaUrl, descriptionMediaUrl, targetEl, btnEl);
     }
     else {
@@ -113,7 +113,7 @@ class RandomItemsBlock {
     if (descriptionHtml != null) {
       html += descriptionHtml;
     }
-    else {
+    else if (itemDescription != null) {
       html += '<p>' + itemDescription + '</p>';
     }
 
