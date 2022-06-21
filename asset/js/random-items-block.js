@@ -2,7 +2,7 @@
 
 class RandomItemsBlock {
 
-  constructor(itemIds, randIdx, totalImages, basePath, siteSlug, linkToItems = false, blockUuid, btnPlacement, imageMediaIds, descriptionMediaIds) {
+  constructor(itemIds, randIdx, totalImages, basePath, siteSlug, linkToItems = false, blockUuid, btnPlacement, headerLevel) {
     this.API_PATH = "api/items";
     this.itemIds = itemIds;
     this.randIdx = randIdx;
@@ -13,8 +13,7 @@ class RandomItemsBlock {
     this.btnPlacement = btnPlacement;
     this.itemPath = this.basePath + "/s/" + this.siteSlug + "/item/";
     this.media_api_path = this.basePath + '/api/media/';
-    this.imageMediaIds = imageMediaIds;
-    this.descriptionMediaIds = descriptionMediaIds;
+    this.headerLevel = headerLevel;
     this.spinner = '<div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>';
     this.spinnerClass = '.lds-ellipsis';
   }
@@ -96,16 +95,15 @@ class RandomItemsBlock {
   assembleHtml(itemId, itemImageUrl, itemTitle, itemDescription, altText, descriptionHtml, targetEl, btnEl) {
     const self = this;
     let html = '<div class="random-item">';
-
     if (this.linkToItems == 1) {
-      html += '<h3><a href="' + this.itemPath + itemId + '">' + itemTitle + '</a></h3>';
+      html += '<' + this.headerLevel + '><a href="' + this.itemPath + itemId + '">' + itemTitle + '</a></' + this.headerLevel + '>';
       html += '<div class="random-item-image">';
       html += '<a href="' + this.itemPath + itemId + '"><img src="' + itemImageUrl + '" alt="' + altText + '"></a>';
       html += '</div>';
       html += '<div class="random-item-description">';
     }
     else {
-      html += '<h3>' + itemTitle + '</h3>';
+      html += '<' + this.headerLevel + '>' + itemTitle + '</' + this.headerLevel + '>';
       html += '<div class="random-item-image">';
       html += '<img src="' + itemImageUrl + '" alt="' + altText + '">';
       html += '</div>';

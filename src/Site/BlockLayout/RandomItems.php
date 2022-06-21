@@ -72,6 +72,14 @@ class RandomItems extends AbstractBlockLayout
         $linkItems->setLabel('Check to link random items to their display pages');
         $linkItems->setValue($block ? $block->dataValue('linkItems', false) : false);
 
+        $header_levels_list = ['h2','h3','h4','h5'];
+        $headerLevelSelectedOption = $block ? $block->dataValue('show_header_level_select_option', '') : '';
+        $headerLevelSelect = new Select('o:block[__blockIndex__][o:data][show_header_level_select_option]');
+        $headerLevelSelect->setValueOptions($header_levels_list)->setValue($headerLevelSelectedOption);
+        $headerLevelSelect->setLabel('Choose a header level to use for the item display. Select a level that meets accessibility guidelines and ensures heading levels are not skipped.');
+
+        $headerLevelSelect->setValue($block ? $block->dataValue('show_header_level_select_option', '0') : '0');
+
         $formReturn = $view->formRow($resTemplateSelect);
         $formReturn .= $view->formRow($count);
         $formReturn .= $view->formRow($totalItems);
@@ -79,6 +87,7 @@ class RandomItems extends AbstractBlockLayout
         $formReturn .= $view->formRow($userRandomLabel);
         $formReturn .= $view->formRow($userRandomPlacement);
         $formReturn .= $view->formRow($linkItems);
+        $formReturn .= $view->formRow($headerLevelSelect);
 
         return $formReturn;
     }

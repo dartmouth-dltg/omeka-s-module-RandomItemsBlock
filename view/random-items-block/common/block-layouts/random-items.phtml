@@ -7,6 +7,7 @@
       $linkItems = $block->dataValue('linkItems', false);
       $blockUuid = uniqid();
       $btnPlacement = 0;
+      $header_level = $block->dataValue('headerLevelSelect','h2');
 ?>
 <?php if ($block->dataValue('userRandom') == 1): ?>
   <?php if (count($initialItems) != 1): ?>
@@ -20,9 +21,9 @@
         <?php foreach ($initialItems as $initialItem): ?>
           <div class="random-item">
             <?php if ($linkItems): ?>
-              <h3><?php echo $initialItem->link($initialItem->displayTitle()); ?></h3>
+              <<?php echo $header_level; ?>><?php echo $initialItem->link($initialItem->displayTitle()); ?></<?php echo $header_level; ?>>
             <?php else: ?>
-              <h3><?php echo $initialItem->displayTitle(); ?></h3>
+              <<?php echo $header_level; ?>><?php echo $initialItem->displayTitle(); ?></<?php echo $header_level; ?>>
             <?php endif; ?>
             <div class="random-item-image">
               <?php $imageMedia = $initialItem->primaryMedia(); ?>
@@ -69,6 +70,7 @@
       . json_encode($siteSlug)  . ','
       . json_encode($linkItems) . ','
       . json_encode($blockUuid) . ','
-      . json_encode($btnPlacement)); ?>);
+      . json_encode($btnPlacement) . ','
+      . json_encode($header_level)); ?>);
   </script>
 <?php endif; ?>
