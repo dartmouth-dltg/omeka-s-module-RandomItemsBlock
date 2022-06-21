@@ -40,7 +40,7 @@ class RandomItems extends AbstractHelper
         for ($i = 0; $i < $count; $i++) {
           array_push($idxs, $randItemsIdx);
           $itemRepresentations[] = $itemAdapter->getRepresentation($em->getRepository(Item::class)->findBy(['id' => $itemIds[$randItemsIdx]])[0]);
-          $randItemsIdx = ($randItemsIdx + 1) % (count($itemIds) - 1);
+          $randItemsIdx = count($itemIds) > 1 ? ($randItemsIdx + 1) % (count($itemIds) - 1) : 1;
         }
 
         return array($itemIds, $itemRepresentations, $idxs[$count - 1]);
