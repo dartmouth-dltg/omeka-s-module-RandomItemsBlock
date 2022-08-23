@@ -1,13 +1,76 @@
-<?php $items = $this->randomItems($block->dataValue('count', 3)); ?>
-<div class="item-showcase">
-    <?php foreach ($items as $item): ?>
-        <div class="item resource">
-            <?php $media = $item->primaryMedia(); ?>
-            <?php if ($media): ?>
-                <?php echo $item->linkRaw($this->thumbnail($media, 'large')); ?>
+<?php $items = $this->randomItems($block->dataValue('count', 3), $block->dataValue('totalItems', 1000), $block->dataValue('show_res_template_select_option', null)); ?>
+<?php $itemIds = $items[0];
+      $initialItems = $items[1];
+      $randomIdx = $items[2];
+      $basePath = $view->basePath();
+      $siteSlug = $block->page()->site()->slug();
+      $linkItems = $block->dataValue('linkItems', false);
+      $blockUuid = uniqid();
+      $btnPlacement = 0;
+      $header_level = $block->dataValue('headerLevelSelect','h2');
+?>
+<?php if ($block->dataValue('userRandom') == 1): ?>
+  <?php if (count($initialItems) != 1): ?>
+    <div class="random-items-button">
+      <button data-random-block-target="<?php echo $blockUuid ?>" class="random-items-block-switch"><?php echo $block->dataValue('userRandomLabel', 'View Another Item') ?></button>
+    </div>
+  <?php endif; ?>
+<?php endif; ?>
+<div class="item-showcase" id="<?php echo $blockUuid ?>">
+      <div class="item resource" aria-live="polite">
+        <?php foreach ($initialItems as $initialItem): ?>
+          <div class="random-item">
+            <?php if ($linkItems): ?>
+              <<?php echo $header_level; ?>><?php echo $initialItem->link($initialItem->displayTitle()); ?></<?php echo $header_level; ?>>
+            <?php else: ?>
+              <<?php echo $header_level; ?>><?php echo $initialItem->displayTitle(); ?></<?php echo $header_level; ?>>
             <?php endif; ?>
-
-            <h3><?php echo $item->link($item->displayTitle()); ?></h3>
-        </div>
-    <?php endforeach; ?>
+            <div class="random-item-image">
+              <?php $imageMedia = $initialItem->primaryMedia(); ?>
+              <?php if ($imageMedia): ?>
+                <?php if ($linkItems): ?>
+                  <?php echo $initialItem->linkRaw($this->thumbnail($imageMedia, 'large')); ?>
+                <?php else: ?>
+                  <?php echo $this->thumbnail($imageMedia, 'large'); ?>
+                <?php endif; ?>
+              <?php endif; ?>
+            </div>
+            <div class="random-item-description">
+                <?php $description = ''; ?>
+                <?php foreach ($initialItem->media() as $media): ?>
+                  <?php $thismediatype = $media->value('dcterms:type'); ?>
+                  <?php if ($thismediatype == 'storybooth'): ?>
+                    <?php $description = $media->render(); ?>
+                    <?php break; ?>
+                  <?php else: ?>
+                    <?php $description = '<p>' . $initialItem->displayDescription() . '</p>'; ?>
+                  <?php endif; ?>
+                <?php endforeach; ?>
+                <?php echo $description; ?>
+              <?php if ($block->dataValue('userRandom') == 1): ?>
+                <?php if (count($initialItems) == 1 && $block->dataValue('userRandomPlacement') == 1) : ?>
+                  <?php $btnPlacement = 1; ?>
+                  <div class="random-items-button">
+                    <button data-random-block-target="<?php echo $blockUuid ?>" class="random-items-block-switch"><?php echo $block->dataValue('userRandomLabel', 'View Another Item') ?></button>
+                  </div>
+                <?php endif; ?>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
 </div>
+<?php if ($block->dataValue('userRandom') == 1): ?>
+  <script>
+    var randomItemsBlock = new RandomItemsBlock(
+      <?php echo(json_encode($itemIds) . ','
+      . json_encode($randomIdx) . ','
+      . json_encode($block->dataValue('count', 3)) . ','
+      . json_encode($basePath) . ','
+      . json_encode($siteSlug)  . ','
+      . json_encode($linkItems) . ','
+      . json_encode($blockUuid) . ','
+      . json_encode($btnPlacement) . ','
+      . json_encode($header_level)); ?>);
+  </script>
+<?php endif; ?>
