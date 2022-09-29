@@ -26,7 +26,19 @@
               <<?php echo $header_level; ?>><?php echo $initialItem->displayTitle(); ?></<?php echo $header_level; ?>>
             <?php endif; ?>
             <div class="random-item-image">
-              <?php $imageMedia = $initialItem->primaryMedia(); ?>
+              <?php 
+                $imageMedia = null;
+                $description = '';
+                foreach ($initialItem->media() as $media) {
+                  if (strpos($media->mediaType(), 'image') !== false) {
+                    $imageMedia = $media;
+                  }
+                  if ($media->value('dcterms:type') == 'storybooth' && $description == '') {
+                    $description = $media->render();
+                  }
+                }   
+                $description = $description == '' ? '<p>' . $initialItem->displayDescription() . '</p>' : $description;           
+              ?>
               <?php if ($imageMedia): ?>
                 <?php if ($linkItems): ?>
                   <?php echo $initialItem->linkRaw($this->thumbnail($imageMedia, 'large')); ?>
@@ -36,16 +48,6 @@
               <?php endif; ?>
             </div>
             <div class="random-item-description">
-                <?php $description = ''; ?>
-                <?php foreach ($initialItem->media() as $media): ?>
-                  <?php $thismediatype = $media->value('dcterms:type'); ?>
-                  <?php if ($thismediatype == 'storybooth'): ?>
-                    <?php $description = $media->render(); ?>
-                    <?php break; ?>
-                  <?php else: ?>
-                    <?php $description = '<p>' . $initialItem->displayDescription() . '</p>'; ?>
-                  <?php endif; ?>
-                <?php endforeach; ?>
                 <?php echo $description; ?>
               <?php if ($block->dataValue('userRandom') == 1): ?>
                 <?php if (count($initialItems) == 1 && $block->dataValue('userRandomPlacement') == 1) : ?>
