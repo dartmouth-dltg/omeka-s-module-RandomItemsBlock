@@ -22,10 +22,8 @@ class RandomItemsBlock {
     const self = this
     el.html(this.spinner);
     setTimeout(function(){
-      for (let i = 1; i <= self.totalImages; i++) {
-        self.randIdx = (self.randIdx + i) % self.itemIds.length;
+        self.randIdx = Math.floor(Math.random() * self.itemIds.length);
         self.getRandomItem(el, btn)
-      }
     }, 400, el, btn);
 
   }
