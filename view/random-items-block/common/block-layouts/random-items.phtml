@@ -1,4 +1,4 @@
-<?php $items = $this->randomItems($block->dataValue('count', 3), $block->dataValue('totalItems', 1000), $block->dataValue('show_res_template_select_option', null)); ?>
+<?php $items = $this->randomItems((int) $block->dataValue('count', 3), (int) $block->dataValue('totalItems', 1000), $block->dataValue('show_res_template_select_option', null)); ?>
 <?php $itemIds = $items[0];
       $initialItems = $items[1];
       $randomIdx = $items[2];

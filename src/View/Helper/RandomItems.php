@@ -21,7 +21,7 @@ class RandomItems extends AbstractHelper
     public function __construct(EntityManager $entityManager, ApiAdapterManager $apiAdapterManager)
     {
         $this->entityManager = $entityManager;
-        $this->apiAdapterManager =  $apiAdapterManager;
+        $this->apiAdapterManager = $apiAdapterManager;
     }
 
     /**
