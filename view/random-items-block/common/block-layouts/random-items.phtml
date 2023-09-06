@@ -30,7 +30,7 @@
                 $imageMedia = null;
                 $description = '';
                 foreach ($initialItem->media() as $media) {
-                  if (strpos($media->mediaType(), 'image') !== false) {
+                  if ($this->thumbnail($media, 'large') !== '') {
                     $imageMedia = $media;
                   }
                   if ($media->value('dcterms:type') == 'storybooth' && $description == '') {
