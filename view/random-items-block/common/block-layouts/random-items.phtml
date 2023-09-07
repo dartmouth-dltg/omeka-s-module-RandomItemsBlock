@@ -27,10 +27,10 @@
             <?php endif; ?>
             <div class="random-item-image">
               <?php 
-                $imageMedia = null;
+                $imageMedia = $initialItem->primaryMedia() ? $initialItem->primaryMedia() : null;
                 $description = '';
                 foreach ($initialItem->media() as $media) {
-                  if ($this->thumbnail($media, 'large') !== '') {
+                  if ($imageMedia === null && $this->thumbnail($media, 'large') !== '' && $media->mediaType() != '') {
                     $imageMedia = $media;
                   }
                   if ($media->value('dcterms:type') == 'storybooth' && $description == '') {
