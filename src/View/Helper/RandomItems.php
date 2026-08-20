@@ -27,7 +27,7 @@ class RandomItems extends AbstractHelper
     /**
      * @return \Omeka\Api\Representation\ItemRepresentation[]
      */
-    public function __invoke(int $count, int $totalItems, string $res_template_id = null): array
+    public function __invoke(int $count, int $totalItems, ?string $res_template_id = null): array
     {
         $em = $this->entityManager;
 
