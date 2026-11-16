@@ -19,7 +19,7 @@ class RandomItems extends AbstractBlockLayout
         return 'Random Items'; // @translate
     }
 
-    public function form(PhpRenderer $view, SiteRepresentation $site, SitePageRepresentation $page = null, SitePageBlockRepresentation $block = null)
+    public function form(PhpRenderer $view, SiteRepresentation $site, ?SitePageRepresentation $page = null, ?SitePageBlockRepresentation $block = null)
     {
         $count = new Number('o:block[__blockIndex__][o:data][count]');
         $count->setLabel('Number of items to display'); // @translate

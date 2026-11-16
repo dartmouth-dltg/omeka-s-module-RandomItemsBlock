@@ -42,14 +42,24 @@ class RandomItemsBlock {
     );
   }
 
+  toRelativeUrl(absoluteUrl) {
+    if (!absoluteUrl) return absoluteUrl;
+    try {
+      const url = new URL(absoluteUrl, window.location.origin);
+      return url.pathname + url.search + url.hash;
+    } catch (e) {
+      return absoluteUrl;
+    }
+  }
+
   // FIXME: Can we pass the description field in so we can look at something other than dcterms:description?
   parseApiData(data, targetEl, btnEl) {
     const itemId = data['o:id'];
-    const itemImageUrl = typeof(data['thumbnail_display_urls']['large']) != 'undefined' ? data['thumbnail_display_urls']['large'] : null;
     const itemTitle = typeof(data['o:title']) != 'undefined' ? data['o:title'] : null;
     const itemDescription = typeof(data['dcterms:description']) != 'undefined' ? data['dcterms:description'][0]['@value'] : null;
-    const imageMediaUrl = typeof(data['o:media']) != 'undefined' ? data['o:media'][0]['@id'] : null
-    const descriptionMediaUrl = typeof(data['o:media']) != 'undefined' && typeof(data['o:media'][1]) != 'undefined' ? data['o:media'][1]['@id'] : null
+    const itemImageUrl = typeof(data['thumbnail_display_urls']['large']) != 'undefined' ? this.toRelativeUrl(data['thumbnail_display_urls']['large']) : null;
+    const imageMediaUrl = typeof(data['o:media']) != 'undefined' ? this.toRelativeUrl(data['o:media'][0]['@id']) : null;
+    const descriptionMediaUrl = typeof(data['o:media']) != 'undefined' && typeof(data['o:media'][1]) != 'undefined' ? this.toRelativeUrl(data['o:media'][1]['@id']) : null;
 
     if (itemImageUrl != null && itemTitle != null) {
       this.renderApiData(itemId, itemImageUrl, itemTitle, itemDescription, imageMediaUrl, descriptionMediaUrl, targetEl, btnEl);
